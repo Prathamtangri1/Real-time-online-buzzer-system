@@ -1,0 +1,39 @@
+body, html {
+    background: #f5f5f5;
+    height: 100%;
+}
+.button-background {
+    height: 70vh;
+    width: 100%;
+    background: red;
+    position: absolute;
+    bottom: 0;
+    background: linear-gradient(#e8e8e8 5%, #dcdcdc 20%, #f5f5f5 100%);
+}
+.button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: bottom center;
+    perspective: 100px;
+    transform: rotateX(55deg) translateY(0);
+    margin-top: -140px;
+    margin-left: -140px;
+    height: 280px;
+    width: 280px;
+    background-image: linear-gradient(45deg, #b81f15, #ed6860);
+    border-radius: 50%;
+    box-shadow: inset 4px -4px 5px #ea5349, inset 24px -24px 40px #e83d32, 0 24px 0px #b81f15, 0px 30px 2px rgba(0, 0, 0, .6), -10px 30px 60px 3px #180403;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+    background-position: 0px 0px;
+}
+.button:hover {
+    transform: rotateX(55deg) translateY(-5px);
+    box-shadow: inset 4px -4px 5px #ea5349, inset 24px -24px 40px #e83d32, 0 29px 0px #b81f15, 0px 35px 2px rgba(0, 0, 0, .7), -10px 35px 50px 3px #180403;
+}
+.button:active {
+    background-image: linear-gradient(45deg, #b81f15, #ed6860);
+    transform: rotateX(55deg) translateY(20px);
+    box-shadow: inset 2px -2px 5px #ea5349, inset 24px -24px 40px #e83d32, 0 4px 0px #b81f15, 0px 10px 2px rgba(0, 0, 0, .6), -2px 10px 50px 0px #460c08;
+}

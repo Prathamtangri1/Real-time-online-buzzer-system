@@ -7,17 +7,13 @@
 }
 
 .main {
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .buzzer {
-  height: 45vh;
+  min-height: 45vh;
 }
 
 .times {
-  height: 30vh;
-}
-
-.player_name {
-  height: 10vh;
+  min-height: 30vh;
 }
