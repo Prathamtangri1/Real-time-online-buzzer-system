@@ -6,7 +6,7 @@ class CentreButton extends Component {
         return(
         <div>
             <div class="button-background"></div>
-            <div class="button"></div>
+            <div class="button" onClick={this.props.onClick}></div>
         </div>
         );
     }
