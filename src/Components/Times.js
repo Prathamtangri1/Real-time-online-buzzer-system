@@ -5,25 +5,25 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles(theme => ({
-            root: {
-              flexGrow: 1,
-              marginTop: 20,
-            },
-            topGrid: {
-              marginTop: 10,
-              textAlign: "center",
-            },
-            paper: {
-              padding: theme.spacing(2),
-              textAlign: 'center',
-              color: theme.palette.text.secondary,
-            },
-            button: {
-              margin: theme.spacing(1),
-              height: 80,
-              width: 150,
-            },
-        }));
+    root: {
+        flexGrow: 1,
+        marginTop: 20,
+    },
+    topGrid: {
+        marginTop: 10,
+        textAlign: "center",
+    },
+    paper: {
+        padding: theme.spacing(2),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+    },
+    button: {
+        margin: theme.spacing(1),
+        height: 80,
+        width: 150,
+    },
+}));
 
 function StyleDisplay(props) {
     const classes = useStyles();
