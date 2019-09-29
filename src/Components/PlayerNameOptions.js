@@ -87,7 +87,7 @@ export default function PlayerNameOptions(props) {
   return (
     <div>
       <Dialog open={state.open} onClose={handleClose} aria-labelledby="form-dialog-title" TransitionComponent={Transition}>
-      <DialogTitle id="form-dialog-title">Player Names: </DialogTitle>
+      <DialogTitle id="form-dialog-title">Game ID: {props.gameId} <br/> Player Names:</DialogTitle>
         <DialogContent>
           {error}
           {pnamesTfs}

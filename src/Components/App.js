@@ -26,6 +26,7 @@ class App extends Component {
     this.saveTime = this.saveTime.bind(this);
     this.pnames = [];
     this.numberOfPlayers = 0;
+    this.gameId = this.createGameId();
   }
 
   handleBuzzerClick() {
@@ -36,16 +37,18 @@ class App extends Component {
     this.setState({min: min, secs: secs, milis: milis});
   }
 
-
+  createGameId() {
+    return "uoiewp123";
+  }
 
   render(){
     let ng= "", jg="", pnames="";
     if(this.state.options === "new") {
-      ng = <NewGameOptions playerNames={(num) => {this.setState({options: "pnames"}); this.numberOfPlayers = num}} />
+      ng = <NewGameOptions playerNames={(num) => {this.setState({options: "pnames"}); this.numberOfPlayers = num}} gameId={this.gameId}/>
     }
 
     if(this.state.options === "pnames") {
-      pnames = <PlayerNameOptions numberOfPlayers={this.numberOfPlayers} pnames={(pnm) => this.pnames = pnm}/>
+      pnames = <PlayerNameOptions numberOfPlayers={this.numberOfPlayers} pnames={(pnm) => {this.pnames = pnm; console.log(this.pnames);}} gameId={this.gameId}/>
     }
     
     if(this.state.options === "join") {
