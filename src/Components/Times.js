@@ -74,11 +74,14 @@ class Times extends Component {
     }
 
     handleStartClick() {
-        this.intervalId = setInterval(this.incrementTime, 10);
+        if(this.intervalId == null) {
+            this.intervalId = setInterval(this.incrementTime, 10);
+        }
     }
 
     handleStopClick() {
         clearInterval(this.intervalId);
+        this.intervalId = null;
         this.props.saveTime(this.state.min, this.state.secs, this.state.milis);
     }
 

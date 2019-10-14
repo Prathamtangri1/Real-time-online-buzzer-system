@@ -5,12 +5,18 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { makeStyles } from '@material-ui/core/styles';
 import Slide from '@material-ui/core/Slide';
-
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import TextField from '@material-ui/core/TextField';
 
 const useStyles = makeStyles(theme => ({
   margin: {
     margin: theme.spacing(1),
-  }
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+  },
 }));
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -20,25 +26,83 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 export default function JoinGameOptions() {
   const classes = useStyles();
 
-  const [open, setOpen] = React.useState(true);
+  const [state, setState] = React.useState({
+    open: true,
+    setOpen: true,
+    gameId: "",
+    pname: "",
+  });
 
   function handleClose() {
-    setOpen(false);
+    setState({setOpen: false});
   }
+
+  const handleChange = name => event => {
+    setState({ ...state, [name]: event.target.value });
+  };
 
   return (
     <div>
-      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" TransitionComponent={Transition}>
-        <DialogTitle id="form-dialog-title">Online Buzzer Join<span role="img" aria-label="joystick emoji">️🕹️</span></DialogTitle>
+      <Dialog open={state.open} onClose={handleClose} aria-labelledby="form-dialog-title"  TransitionComponent={Transition}>
+        <DialogTitle id="form-dialog-title">New Player</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            <TextField
+              id="outlined-gameId"
+              label="GameID"
+              className={classes.textField}
+              value={state.gameId}
+              onChange={handleChange('name')}
+              margin="normal"
+              variant="outlined"
+            />
+
+            <TextField
+              id="outlined-pname"
+              label="Pname"
+              className={classes.textField}
+              value={state.pname}
+              onChange={handleChange('name')}
+              margin="normal"
+              variant="outlined"
+            />
+          </DialogContentText>
+        </DialogContent>
         <DialogActions>
-          <Button variant="contained" size="large" onClick={handleClose} color="primary" className={classes.margin}>
-            New Game
+          <Button onClick={handleClose} color="primary">
+            Cancel
           </Button>
-          <Button variant="contained" size="large" onClick={handleClose} color="primary" className={classes.margin}>
-            Join Game
+          <Button onClick={handleClose} color="primary">
+            OK
           </Button>
         </DialogActions>
       </Dialog>
     </div>
   );
 }
+
+
+//   const classes = useStyles();
+
+//   const [open, setOpen] = React.useState(true);
+
+//   function handleClose() {
+//     setOpen(false);
+//   }
+
+//   return (
+//     <div>
+//       <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" TransitionComponent={Transition}>
+//         <DialogTitle id="form-dialog-title">Online Buzzer Join<span role="img" aria-label="joystick emoji">️🕹️</span></DialogTitle>
+//         <DialogActions>
+//           <Button variant="contained" size="large" onClick={handleClose} color="primary" className={classes.margin}>
+//             New Game
+//           </Button>
+//           <Button variant="contained" size="large" onClick={handleClose} color="primary" className={classes.margin}>
+//             Join Game
+//           </Button>
+//         </DialogActions>
+//       </Dialog>
+//     </div>
+//   );
+// }
