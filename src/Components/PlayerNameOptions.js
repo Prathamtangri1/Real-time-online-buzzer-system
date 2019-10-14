@@ -93,11 +93,11 @@ export default function PlayerNameOptions(props) {
           {pnamesTfs}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleClose} color="secondary">
             Cancel
           </Button>
           <Button onClick={handleOk} color="primary">
-            OK
+            Submit
           </Button>
         </DialogActions>
       </Dialog>

@@ -24,9 +24,9 @@ class App extends Component {
 
     this.handleBuzzerClick = this.handleBuzzerClick.bind(this);
     this.saveTime = this.saveTime.bind(this);
-    this.pnames = [];
+    this.pnames = "";
     this.numberOfPlayers = 0;
-    this.gameId = this.createGameId();
+    this.gameId = "";
   }
 
   handleBuzzerClick() {
@@ -37,14 +37,10 @@ class App extends Component {
     this.setState({min: min, secs: secs, milis: milis});
   }
 
-  createGameId() {
-    return "uoiewp123";
-  }
-
   render(){
     let ng= "", jg="", pnames="";
     if(this.state.options === "new") {
-      ng = <NewGameOptions playerNames={(num) => {this.setState({options: "pnames"}); this.numberOfPlayers = num}} gameId={this.gameId}/>
+      ng = <NewGameOptions playerNames={(num) => {this.setState({options: "pnames"}); this.numberOfPlayers = num; this.pnames = [];}} gameId={(gameId) => this.gameId = gameId}/>
     }
 
     if(this.state.options === "pnames") {
@@ -52,7 +48,7 @@ class App extends Component {
     }
     
     if(this.state.options === "join") {
-      jg = <JoinGameOptions />
+      jg = <JoinGameOptions complete={() => this.setState({options: "over"})} playerInfo={(pname, gameId) => {this.gameId = gameId; this.pnames = pname; console.log(this.gameId); console.log(this.pnames);}}/>
     }
 
     return (
@@ -63,7 +59,7 @@ class App extends Component {
         {jg}
         <div className="main">
           <div className="nav-bar">
-            <ButtonAppBar />
+            <ButtonAppBar pname={this.pnames}/>
           </div>
           <div className="times">
             <Times ref="times" saveTime={(min, secs, milis) => this.saveTime(min, secs, milis)}/>

@@ -23,7 +23,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
   });
 
-export default function JoinGameOptions() {
+export default function JoinGameOptions(props) {
   const classes = useStyles();
 
   const [state, setState] = React.useState({
@@ -35,6 +35,12 @@ export default function JoinGameOptions() {
 
   function handleClose() {
     setState({setOpen: false});
+    props.complete();
+  }
+
+  function handleSubmit() {
+    props.playerInfo(state.pname, state.gameId);
+    handleClose();
   }
 
   const handleChange = name => event => {
@@ -52,7 +58,7 @@ export default function JoinGameOptions() {
               label="GameID"
               className={classes.textField}
               value={state.gameId}
-              onChange={handleChange('name')}
+              onChange={handleChange('gameId')}
               margin="normal"
               variant="outlined"
             />
@@ -62,18 +68,18 @@ export default function JoinGameOptions() {
               label="Pname"
               className={classes.textField}
               value={state.pname}
-              onChange={handleChange('name')}
+              onChange={handleChange('pname')}
               margin="normal"
               variant="outlined"
             />
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleClose} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleClose} color="primary">
-            OK
+          <Button onClick={handleSubmit} color="primary">
+            Submit
           </Button>
         </DialogActions>
       </Dialog>

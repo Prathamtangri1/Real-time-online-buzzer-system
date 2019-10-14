@@ -47,6 +47,8 @@ export default function NewGameOptions(props) {
 
   const inputLabel = React.useRef(null);
   const [labelWidth] = React.useState(0);
+  const gameId = createGameId();
+  props.gameId(gameId);
 
   function handleClose() {
     setState({setOpen: false});
@@ -64,10 +66,14 @@ export default function NewGameOptions(props) {
     handleClose();
   }
 
+  function createGameId() {
+    return "uoiewp123";
+  }
+
   return (
     <div>
       <Dialog open={state.open} onClose={handleClose} aria-labelledby="form-dialog-title" TransitionComponent={Transition}>
-      <DialogTitle id="form-dialog-title">New Game ID: {props.gameId}</DialogTitle>
+      <DialogTitle id="form-dialog-title">New Game ID: {gameId}</DialogTitle>
         <DialogContent>
           <FormControl variant="outlined" className={classes.formControl}>
             <InputLabel ref={inputLabel} htmlFor="outlined-age-simple">
@@ -88,11 +94,11 @@ export default function NewGameOptions(props) {
           </FormControl>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleClose} color="secondary">
             Cancel
           </Button>
           <Button onClick={handleOk} color="primary">
-            OK
+            Submit
           </Button>
         </DialogActions>
       </Dialog>

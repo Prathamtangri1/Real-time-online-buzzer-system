@@ -16,11 +16,24 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     flexGrow: 1,
+    fontFamily: "Playball",
+    fontSize: 25,
   },
 }));
 
-export default function ButtonAppBar() {
+export default function ButtonAppBar(props) {
   const classes = useStyles();
+  let pname = "Login";
+
+  if(Array.isArray(props.pname)) {
+    pname = "Admin";
+  }
+  else if(props.pname === "") {
+    pname = "Login";
+  }
+  else {
+    pname = props.pname;
+  }
 
   return (
     <div className={classes.root}>
@@ -32,7 +45,7 @@ export default function ButtonAppBar() {
           <Typography variant="h6" className={classes.title}>
             Buzzer
           </Typography>
-          <Button color="inherit">Login</Button>
+          <Button color="inherit">{pname}</Button>
         </Toolbar>
       </AppBar>
     </div>
