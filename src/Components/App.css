@@ -6,6 +6,11 @@
   justify-content: center;
 }
 
+.host{
+  width: 100%;
+  text-align: center;
+}
+
 .main {
   min-height: 100vh;
 }
@@ -16,4 +21,24 @@
 
 .times {
   min-height: 35vh;
+}
+
+.playersBuzzed{
+  max-width: 100vw;
+  min-width: 50vw;
+  display: table;
+  margin: 0 auto;
+}
+
+.hr {
+  margin-bottom: 20px;
+  width: 60vw;
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+.hr2 {
+  margin-top: 50px;
+  margin-bottom: 20px;
+  width: 60vw;
+  background-color: rgba(0, 0, 0, 0.12);
 }

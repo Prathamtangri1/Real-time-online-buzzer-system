@@ -43,7 +43,7 @@ export default function ButtonAppBar(props) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
-            Buzzer
+            Aldrin
           </Typography>
           <Button color="inherit">{pname}</Button>
         </Toolbar>

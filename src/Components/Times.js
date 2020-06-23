@@ -27,22 +27,30 @@ const useStyles = makeStyles(theme => ({
 
 function StyleDisplay(props) {
     const classes = useStyles();
+    let buttonDisplay = "";
+    if(props.controls === "on") {
+        buttonDisplay = <Grid container spacing={3} className={classes.topGrid} justify="center" alignItems="center">
+                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStartClick}>
+                                <Typography variant="h6">
+                                    Start
+                                </Typography>
+                            </Button>
+                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStopClick}>
+                                <Typography variant="h6">
+                                    Stop
+                                </Typography>
+                            </Button>
+                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onResetClick}>
+                                <Typography variant="h6">
+                                    Reset
+                                </Typography>
+                            </Button>
+                        </Grid>
+    }
 
     return(
         <div className={classes.root}>
-            <Grid container spacing={3} className={classes.topGrid} justify="center"
-                alignItems="center">
-                <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStartClick}>
-                    <Typography variant="h6">
-                        Start
-                    </Typography>
-                </Button>
-                <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStopClick}>
-                    <Typography variant="h6">
-                        Stop
-                    </Typography>
-                </Button>
-            </Grid>
+            {buttonDisplay}
             <Grid container spacing={1} className={classes.topGrid} justify="center"
             alignItems="center" alignContent="center">
                 <Grid item xs alignContent="center">
@@ -85,6 +93,13 @@ class Times extends Component {
         this.props.saveTime(this.state.min, this.state.secs, this.state.milis);
     }
 
+    handleResetClick() {
+        clearInterval(this.intervalId);
+        this.intervalId = null;
+        this.props.saveTime(this.state.min, this.state.secs, this.state.milis);
+        this.setState({min: 0, secs: 0, milis: 0});
+    }
+
     incrementTime() {
         let {min, secs, milis} = this.state;
         milis = milis + 1;
@@ -102,7 +117,7 @@ class Times extends Component {
 
     render() {
         return (
-            <StyleDisplay min={this.state.min} secs={this.state.secs} milis={this.state.milis} onStartClick={() => this.handleStartClick()} onStopClick={() => this.handleStopClick()}/>
+            <StyleDisplay min={this.state.min} secs={this.state.secs} milis={this.state.milis} onStartClick={() => this.handleStartClick()} onStopClick={() => this.handleStopClick()}  onResetClick={() => this.handleResetClick()} controls={this.props.controls}/>
         );
     }
 }
