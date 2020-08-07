@@ -28,13 +28,14 @@ class App extends Component {
     this.joinGame = false;
 
     this.handleBuzzerClick = this.handleBuzzerClick.bind(this);
-    this.handleControlsClick = this.handleControlsClick.bind(this);
     this.handleNewGame = this.handleNewGame.bind(this);
     this.handleJoinGame = this.handleJoinGame.bind(this);
+    this.handleHostOrders = this.handleHostOrders.bind(this);
     this.saveTime = this.saveTime.bind(this);
     this.pnames = "Host";
     this.numberOfPlayers = 0;
     this.gameId = "";
+    this.times = React.createRef();
 
     this.socket = socketIOClient(ENDPOINT);
     this.socket.on('connect', () => {
@@ -43,29 +44,28 @@ class App extends Component {
 
     this.socket.on('message', data => {
       console.log("Name: " + this.pnames + " message: " + data);
-      this.socket.send(data + ' received');
-    });
+      // this.socket.send(data + ' received');
 
-    this.socket.on('new_gameId', (data) => {
-      this.gameId = data;
+      if(data === 'timer_start' || data === 'timer_stop' || data === 'timer_reset') {
+        this.handleHostOrders(data);
+      }
     });
-
   }
 
-  handleControlsClick(type) {
-    if (type === "start"){
-      this.socket.send('timer_start');
+  handleHostOrders(order) {
+    if (order === "timer_start"){
+      this.times.current.handleStartClick();
     }
-    else if (type === "stop") {
-      this.socket.send('timer_stop');
+    else if (order === "timer_stop") {
+      this.times.current.handleStopClick();
     }
-    else if (type === "reset"){
-      this.socket.send('timer_reset');
+    else if (order === "timer_reset"){
+      this.times.current.handleResetClick();
     }
   }
 
   handleBuzzerClick() {
-    this.refs.times.handleStopClick();
+    this.times.current.handleStopClick();
   }
 
   saveTime(min, secs, milis) {
@@ -79,9 +79,8 @@ class App extends Component {
 
     this.socket.on('new_gameId', (data) => {
      this.gameId = data;
-    });
-
-    this.socket.emit('join_room', this.gameId);
+     this.socket.emit('join_room', this.gameId);
+    }); 
   }
 
   handleJoinGame(p_name, game_Id) {
@@ -98,7 +97,9 @@ class App extends Component {
       //ng = <NewGameOptions playerNames={(num) => {this.setState({options: "game_created"}); this.numberOfPlayers = num; this.pnames = [];}} gameId={(gameId) => this.gameId = gameId}/>
       hostSees =  <div className="host">
                     <div className="times">
-                      <Times ref="times" saveTime={(min, secs, milis) => this.saveTime(min, secs, milis)} onControlsClick={(type) => this.handleControlsClick(type)} controls = {"on"}/>
+                      <Times ref={this.times} saveTime={(min, secs, milis) => this.saveTime(min, secs, milis)} 
+                      // onControlClick={(type) => this.handleControlsClick(type)} 
+                      controls = {"on"} socket={this.socket}/>
                     </div>
                     <hr className="hr"/>
                     <div className="playersBuzzed">
@@ -121,7 +122,7 @@ class App extends Component {
       newClientSees = "";
       playerSees =  <div>
                       <div className="times">
-                        <Times ref="times" saveTime={(min, secs, milis) => this.saveTime(min, secs, milis)} controls = {"off"} />
+                        <Times ref={this.times} saveTime={(min, secs, milis) => this.saveTime(min, secs, milis)} controls = {"off"} />
                       </div>
                       <div className="buzzer">
                         <CentreButton onClick={this.handleBuzzerClick}/>
@@ -131,7 +132,7 @@ class App extends Component {
     else {
       newClientSees = <div>
                         <div className="times">
-                          <Times ref="times" saveTime={(min, secs, milis) => this.saveTime(min, secs, milis)} controls = {"off"} />
+                          <Times ref={this.times} saveTime={(min, secs, milis) => this.saveTime(min, secs, milis)} controls = {"off"} />
                         </div>
                         <div className="buzzer">
                           <CentreButton onClick={this.handleBuzzerClick}/>

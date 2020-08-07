@@ -31,7 +31,7 @@ io.on("connection", (socket) => {
     if(data === 'timer_start' || data === 'timer_stop' || data === 'timer_reset') {
       if(gameId !== '') {
         console.log('came here');
-        io.to(gameId).send(data);
+        socket.to(gameId).send(data);
       }
     }
   });
