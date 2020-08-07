@@ -6,35 +6,56 @@ const port = process.env.PORT || 4001;
 const index = require("./routes/index");
 
 const app = express();
+
+
+
 app.use(index);
 
 const server = http.createServer(app);
 
 const io = socketIo(server);
 
-let interval;
+let host = '';
+
+let users = [];
 
 io.on("connection", (socket) => {
   console.log("New client connected");
-  if (interval) {
-    clearInterval(interval);
-  }
+
+  socket.send('Testing message');
+
+  let gameId = ''; 
 
   socket.on('message', data => {
     console.log(data);
+    if(data === 'timer_start' || data === 'timer_stop' || data === 'timer_reset') {
+      if(gameId !== '') {
+        console.log('came here');
+        io.to(gameId).send(data);
+      }
+    }
   });
+
+  socket.on('request_gameId', () => {
+    gameId = '12345';
+    socket.emit('new_gameId', gameId);
+    host = socket.id;
+    console.log("new client: ", socket.id);
+  })
   
-  interval = setInterval(() => getApiAndEmit(socket), 1000);
+  socket.on('join_room', data => {
+      if (socket.id != host)
+        users.push(socket.id);
+
+      socket.join(data);
+      console.log("joined_room: " + socket.id + " room id: " + data);
+  });
+
+  
+  
   socket.on("disconnect", () => {
     console.log("Client disconnected");
-    clearInterval(interval);
   });
 });
-
-const getApiAndEmit = socket => {
-  const response = new Date();
-  // Emitting a new message. Will be consumed by the client
-  socket.emit("FromAPI", response);
-};
 
 server.listen(port, () => console.log(`Listening on port ${port}`));

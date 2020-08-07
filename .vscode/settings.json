@@ -1,4 +1,5 @@
 {
     "editor.fontSize": 16,
-    "editor.fontFamily": "Ubuntu Mono, 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'"
+    "editor.fontFamily": "Ubuntu Mono, 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
+    "editor.wordWrapColumn": 200
 }
