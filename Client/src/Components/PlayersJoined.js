@@ -17,34 +17,28 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function SimpleList() {
+export default function PlayersJoined(props) {
   const classes = useStyles();
+
+  let players = [];
+  players = props.players.map(pName => (
+    <ListItem>
+      <ListItemIcon>
+        <AccountCircleIcon fontSize="large" />
+      </ListItemIcon>
+      <ListItemText primary={pName} />
+      <ListItemSecondaryAction>
+        <IconButton edge="end" aria-label="delete" onClick={() => props.onPlayerDelete(pName)}>
+          <DeleteIcon />
+        </IconButton>
+      </ListItemSecondaryAction>
+    </ListItem>
+  ));
 
   return (
     <div className={classes.root}>
       <List component="nav" aria-label="main mailbox folders">
-        <ListItem>
-          <ListItemIcon>
-            <AccountCircleIcon fontSize="large" />
-          </ListItemIcon>
-          <ListItemText primary="Guy1" />
-          <ListItemSecondaryAction>
-            <IconButton edge="end" aria-label="delete">
-              <DeleteIcon />
-            </IconButton>
-          </ListItemSecondaryAction>
-        </ListItem>
-        <ListItem>
-          <ListItemIcon>
-            <AccountCircleIcon fontSize="large" />
-          </ListItemIcon>
-          <ListItemText primary="Guy2" />
-          <ListItemSecondaryAction>
-            <IconButton edge="end" aria-label="delete">
-              <DeleteIcon />
-            </IconButton>
-          </ListItemSecondaryAction>
-        </ListItem>
+        {players}
       </List>
     </div>
   );

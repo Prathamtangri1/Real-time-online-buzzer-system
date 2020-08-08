@@ -22,6 +22,7 @@ class App extends Component {
       winner: false,
       options: "initial",
       ptype: "",
+      players: [],
     }
 
     this.newGame = false;
@@ -31,6 +32,7 @@ class App extends Component {
     this.handleNewGame = this.handleNewGame.bind(this);
     this.handleJoinGame = this.handleJoinGame.bind(this);
     this.handleHostOrders = this.handleHostOrders.bind(this);
+    this.handlePlayerDelete = this.handlePlayerDelete.bind(this);
     this.saveTime = this.saveTime.bind(this);
     this.pnames = "Host";
     this.numberOfPlayers = 0;
@@ -39,7 +41,7 @@ class App extends Component {
 
     this.socket = socketIOClient(ENDPOINT);
     this.socket.on('connect', () => {
-      this.socket.send('Booyah!');
+      console.log('Connected to Server');
     });
 
     this.socket.on('message', data => {
@@ -49,6 +51,12 @@ class App extends Component {
       if(data === 'timer_start' || data === 'timer_stop' || data === 'timer_reset') {
         this.handleHostOrders(data);
       }
+    });
+
+    this.socket.on('new_player', data => {
+      let temp = this.state.players;
+      temp.push(data);
+      this.setState({players: temp});
     });
   }
 
@@ -79,16 +87,39 @@ class App extends Component {
 
     this.socket.on('new_gameId', (data) => {
      this.gameId = data;
-     this.socket.emit('join_room', this.gameId);
     }); 
   }
 
   handleJoinGame(p_name, game_Id) {
     this.gameId = game_Id;
     this.pnames = p_name;
-    this.setState({options: "join", ptype: "player"});
-    this.socket.emit('join_room', this.gameId);
+
+    this.socket.emit('join_room', {gameId: game_Id, pName: p_name});
+
+
+    this.socket.on('join_room_response', (data) => {
+      if(data === 'Successful')
+        this.setState({options: "game_joined", ptype: "player"});
+      else if (data === 'pName_repeat')
+        this.setState({options: "join_error_pName"});
+      else if (data === 'gameId doesn\'t exist')
+        this.setState({options: "join_error_gameId"});
+    });  
   }
+
+  handlePlayerDelete(pName) {
+    this.socket.emit('player_delete', pName);
+
+    this.socket.on('player_delete_confirmed', (pName) => {
+      let temp = this.state.players;
+
+      temp.splice(temp.indexOf(pName), 1);
+
+      this.setState({players: temp});
+    })
+  }
+
+
 
   render(){
     let jg="", hostSees="", playerSees="", newClientSees="";
@@ -113,7 +144,7 @@ class App extends Component {
                       <Typography variant="h5" gutterBottom>
                         Players Joined
                       </Typography>
-                      <PlayersJoined />
+                      <PlayersJoined players={this.state.players} onPlayerDelete={(pName) => this.handlePlayerDelete(pName)}/>
                     </div>
                   </div>
 
@@ -145,7 +176,13 @@ class App extends Component {
     // }
     
     if(this.state.options === "join") {
-      jg = <JoinGameOptions complete={() => this.setState({options: "game_joined", ptype: "player"})} playerInfo={(p_name, game_Id) => {this.handleJoinGame(p_name, game_Id)}}/>
+      jg = <JoinGameOptions complete={() => this.setState({options: "game_joined", ptype: "player"})} playerInfo={(p_name, game_Id) => {this.handleJoinGame(p_name, game_Id)}} error={""}/>
+    }
+    else if(this.state.options === "join_error_pName") {
+      jg = <JoinGameOptions complete={() => this.setState({options: "game_joined", ptype: "player"})} playerInfo={(p_name, game_Id) => {this.handleJoinGame(p_name, game_Id)}} error={"pName_repeat"}/>
+    }
+    else if(this.state.options === "join_error_gameId") {
+      jg = <JoinGameOptions complete={() => this.setState({options: "game_joined", ptype: "player"})} playerInfo={(p_name, game_Id) => {this.handleJoinGame(p_name, game_Id)}} error={"gameId doesn't exist"}/>
     }
 
     return (
