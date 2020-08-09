@@ -23,6 +23,7 @@ class App extends Component {
       options: "initial",
       ptype: "",
       players: [],
+      gameId: '',
     }
 
     this.newGame = false;
@@ -36,7 +37,6 @@ class App extends Component {
     this.saveTime = this.saveTime.bind(this);
     this.pnames = "Host";
     this.numberOfPlayers = 0;
-    this.gameId = "";
     this.times = React.createRef();
 
     this.socket = socketIOClient(ENDPOINT);
@@ -86,12 +86,12 @@ class App extends Component {
     this.socket.emit('request_gameId');
 
     this.socket.on('new_gameId', (data) => {
-     this.gameId = data;
+     this.setState({gameId: data});
     }); 
   }
 
   handleJoinGame(p_name, game_Id) {
-    this.gameId = game_Id;
+    this.setState({gameId: game_Id});
     this.pnames = p_name;
 
     this.socket.emit('join_room', {gameId: game_Id, pName: p_name});
@@ -130,7 +130,7 @@ class App extends Component {
     let jg="", hostSees="", playerSees="", newClientSees="";
     if(this.state.options === "game_created" && this.state.ptype === "host") {
       newClientSees = "";
-      //ng = <NewGameOptions playerNames={(num) => {this.setState({options: "game_created"}); this.numberOfPlayers = num; this.pnames = [];}} gameId={(gameId) => this.gameId = gameId}/>
+      //ng = <NewGameOptions playerNames={(num) => {this.setState({options: "game_created"}); this.numberOfPlayers = num; this.pnames = [];}} gameId={(gameId) => this.setState({gameId: gameId});}/>
       hostSees =  <div className="host">
                     <div className="times">
                       <Times ref={this.times} saveTime={(min, secs, milis) => this.saveTime(min, secs, milis)} 
@@ -177,7 +177,7 @@ class App extends Component {
     }
 
     // if(this.state.options === "pnames") {
-    //   pnames = <PlayerNameOptions numberOfPlayers={this.numberOfPlayers} pnames={(pnm) => {this.pnames = pnm; console.log(this.pnames);}} gameId={this.gameId}/>
+    //   pnames = <PlayerNameOptions numberOfPlayers={this.numberOfPlayers} pnames={(pnm) => {this.pnames = pnm; console.log(this.pnames);}} gameId={this.state.gameId}/>
     // }
     
     if(this.state.options === "join") {
@@ -198,7 +198,7 @@ class App extends Component {
         {jg}
         <div className="main">
           <div className="nav-bar">
-            <ButtonAppBar pname={this.pnames}/>
+            <ButtonAppBar pname={this.pnames} gameId={this.state.gameId}/>
           </div>
           {newClientSees}
           {hostSees}
