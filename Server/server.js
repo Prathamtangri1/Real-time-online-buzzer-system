@@ -16,7 +16,6 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 let games = [];
-let players = {};
 
 io.on("connection", (socket) => {
   console.log("New client connected");
@@ -44,7 +43,7 @@ io.on("connection", (socket) => {
 
     socket.join(gameId);
 
-    games.push({gameId: gameId, host: host, pNames: new Set(), nPlayers: 0});
+    games.push({gameId: gameId, host: host, nPlayers: 0, pNames: [], pIds: []});
 
     console.log(games);
   })
@@ -55,9 +54,10 @@ io.on("connection", (socket) => {
     games.forEach(element => {
       if (element.gameId === data.gameId) {
         flag = 1;
-        if (!element.pNames.has(data.pName)) {
+        if (element.pNames.indexOf(data.pName) === -1) {
           ++element.nPlayers;
-          element.pNames.add(data.pName);
+          element.pNames.push(data.pName);
+          element.pIds.push(socket.id);
 
           socket.join(data.gameId);
           console.log("name: " + data.pName + " socket id: " + socket.id);                                      
@@ -66,7 +66,6 @@ io.on("connection", (socket) => {
 
           console.log(games);
           socket.emit('join_room_response', 'Successful');
-          players[pName] = socket.id;
 
           io.to(element.host).emit('new_player', pName);
         }
@@ -75,28 +74,35 @@ io.on("connection", (socket) => {
         }
       }
     });
-
-    console.log(players);
     
     if(flag === 0)
       socket.emit('join_room_response','gameId doesn\'t exist');
   });
 
   socket.on("player_delete", (pName) => {
-    let player_id = players[pName];
-    console.log('player_id: ' + player_id + ' pName: ' + pName);
-    // let players_room = io.sockets.adapter.rooms[gameId].sockets;
-    // console.log(players_room);
+    let player_id = '';
 
-    io.sockets.connected[player_id].disconnect(true);
-    console.log("hopefully");
-    
-    console.log(players);
-    socket.emit('player_disconnected', pName);
+    let flag = 0;
+    games.forEach(element => {
+      if (element.gameId === gameId) {
+        flag = 1;
+        player_id = element.pIds[element.pNames.indexOf(pName)];
+      }
+    });
+
+    if(flag === 0)
+      socket.emit("player_delete_response", "player to delete doesn't exist");
+    else {
+      console.log('player_id: ' + player_id + ' pName: ' + pName);
+      // let players_room = io.sockets.adapter.rooms[gameId].sockets;
+      // console.log(players_room);
+
+      io.sockets.connected[player_id].disconnect(true);
+      
+      // socket.emit('player_disconnected', pName);
+    }
   });
 
-  
-  
   socket.on("disconnect", () => {
     console.log("Client disconnected");
 
@@ -104,7 +110,8 @@ io.on("connection", (socket) => {
       if (element.gameId === gameId) {
         if (socket.id !== element.host) {
           --element.nPlayers;
-          element.pNames.delete(pName);
+          element.pIds.splice(element.pNames.indexOf(pName), 1);
+          element.pNames.splice(element.pNames.indexOf(pName), 1);
         }
         else if (socket.id == element.host) {
           element.host = undefined;
@@ -114,10 +121,12 @@ io.on("connection", (socket) => {
           games.splice(games.indexOf(element), 1);
         }
 
-        delete players[pName];
-        console.log(players);
+        if(io.sockets.connected[element.host]){
+          io.sockets.connected[element.host].emit('player_disconnected', pName);
+          console.log("host sent for delete: " + pName);
+        }
+        // socket.emit('player_disconnected', pName);
 
-        socket.emit('player_disconnected', pName);
       }
     });
 
@@ -127,3 +136,6 @@ io.on("connection", (socket) => {
 });
 
 server.listen(port, () => console.log(`Listening on port ${port}`));
+
+//when a player disconnects, it should be visible to the host
+//change player object, gameId is first key, then uske andar object, and usme player and ids.
