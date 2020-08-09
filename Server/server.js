@@ -121,6 +121,12 @@ io.on("connection", (socket) => {
         }
 
         if(element.host === undefined) {
+          if((gameIdCurrent-1).toString() === element.gameId) {
+            gameIdCurrent--;
+            
+            //if possible, add code so that the minimum gameId available is used
+          }
+
           games.splice(games.indexOf(element), 1);
         }
 
