@@ -14,6 +14,7 @@ app.use(index);
 const server = http.createServer(app);
 
 const io = socketIo(server);
+let gameIdCurrent = 123;
 
 let games = [];
 
@@ -36,7 +37,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on('request_gameId', () => {
-    gameId = '12345';
+    gameId = gameIdCurrent.toString();
+    gameIdCurrent++;
+
     socket.emit('new_gameId', gameId);
     host = socket.id;
     console.log("new client: ", socket.id);
@@ -123,7 +126,7 @@ io.on("connection", (socket) => {
 
         if(io.sockets.connected[element.host]){
           io.sockets.connected[element.host].emit('player_disconnected', pName);
-          console.log("host sent for delete: " + pName);
+          console.log("player sent for delete: " + pName);
         }
         // socket.emit('player_disconnected', pName);
 

@@ -58,6 +58,19 @@ class App extends Component {
       temp.push(data);
       this.setState({players: temp});
     });
+
+    this.socket.on('player_disconnected', (pName) => {
+      let temp = this.state.players;
+      console.log("to be deleted: " + pName);
+
+      temp.splice(temp.indexOf(pName), 1);
+
+      this.setState({players: temp});
+    });
+
+    this.socket.on("player_delete_response", (msg) => {
+      console.log(msg);
+    });
   }
 
   handleHostOrders(order) {
@@ -109,19 +122,6 @@ class App extends Component {
 
   handlePlayerDelete(pName) {
     this.socket.emit('player_delete', pName);
-
-    this.socket.on('player_disconnected', (pName) => {
-      let temp = this.state.players;
-      console.log("to be deleted: " + pName);
-
-      temp.splice(temp.indexOf(pName), 1);
-
-      this.setState({players: temp});
-    });
-
-    this.socket.on("player_delete_response", (msg) => {
-      console.log(msg);
-    });
   }
 
 
