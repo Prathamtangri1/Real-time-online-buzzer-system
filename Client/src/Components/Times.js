@@ -79,6 +79,11 @@ class Times extends Component {
         this.intervalId = null;
 
         this.incrementTime = this.incrementTime.bind(this);
+        this.getCurTime = this.getCurTime.bind(this);
+    }
+
+    getCurTime() {
+        this.props.saveTime(this.state.min, this.state.secs, this.state.milis);
     }
 
     handleStartClick() {
@@ -104,6 +109,7 @@ class Times extends Component {
         this.intervalId = null;
         this.props.saveTime(this.state.min, this.state.secs, this.state.milis);
         this.setState({min: 0, secs: 0, milis: 0});
+        this.props.onResetClick();
 
         if(this.props.socket)
             this.props.socket.send('timer_reset');

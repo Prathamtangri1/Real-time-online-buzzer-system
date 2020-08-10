@@ -25,6 +25,7 @@ io.on("connection", (socket) => {
 
   let gameId = ''; 
   let pName = '';
+  let host = '';
 
   socket.on('message', data => {
     console.log(data);
@@ -66,6 +67,7 @@ io.on("connection", (socket) => {
           console.log("name: " + data.pName + " socket id: " + socket.id);                                      
           gameId = data.gameId;
           pName = data.pName;
+          host = element.host;
 
           console.log(games);
           socket.emit('join_room_response', 'Successful');
@@ -104,6 +106,11 @@ io.on("connection", (socket) => {
       
       // socket.emit('player_disconnected', pName);
     }
+  });
+
+  socket.on("player_buzzed", (data) => {
+    console.log("p: " + data.pName + " pressed buzzer");
+    io.to(host).emit('player_buzzed', data);
   });
 
   socket.on("disconnect", () => {

@@ -14,20 +14,22 @@ const useStyles = makeStyles({
   },
 });
 
-function createData(name, time) {
+/* function createData(name, time) {
   return { name,time };
-}
+} */
 
-const rows = [
+/* const rows = [
   createData('Frozen yoghurt', 159),
   createData('Ice cream sandwich', 237),
   createData('Eclair', 262),
   createData('Cupcake', 305),
   createData('Gingerbread', 356),
-];
+]; */
 
-export default function PlayersBuzzed() {
+export default function PlayersBuzzed(props) {
   const classes = useStyles();
+
+
 
   return (
     <TableContainer>
@@ -39,13 +41,12 @@ export default function PlayersBuzzed() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.name}>
+          {props.buzzed.map((row) => (
+            <TableRow key={row.pName}>
               <TableCell component="th" scope="row">
-                {row.name}
+                {row.pName}
               </TableCell>
               <TableCell align="right">{row.time}</TableCell>
-
             </TableRow>
           ))}
         </TableBody>
