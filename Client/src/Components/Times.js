@@ -28,6 +28,20 @@ const useStyles = makeStyles(theme => ({
 function StyleDisplay(props) {
     const classes = useStyles();
     let buttonDisplay = "";
+
+    let countdown = "";
+
+    if(props.countdownVisible === true) {
+        countdown = <Grid item xs alignContent="center">
+                        <Typography variant="h1">
+                            {props.min > 9 ? "" + props.min : "0" + props.min}:{props.secs > 9 ? "" + props.secs : "0" + props.secs}:{props.milis > 9 ? "" + props.milis : "0" + props.milis}
+                        </Typography>
+                    </Grid>
+    }
+    else if (props.countdownVisible === false) {
+        countdown = ""
+    }
+
     if(props.controls === "on") {
         buttonDisplay = <Grid container spacing={3} className={classes.topGrid} justify="center" alignItems="center">
                             <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStartClick}>
@@ -53,14 +67,7 @@ function StyleDisplay(props) {
             {buttonDisplay}
             <Grid container spacing={1} className={classes.topGrid} justify="center"
             alignItems="center" alignContent="center">
-                <Grid item xs alignContent="center">
-                    <Typography variant="h1">
-                        {props.min > 9 ? "" + props.min : "0" + props.min}:{props.secs > 9 ? "" + props.secs : "0" + props.secs}:{props.milis > 9 ? "" + props.milis : "0" + props.milis}
-                    </Typography>
-                    {/* <Typography variant="h3">
-                        {props.milis < 10 ? "00"+props.milis : (props.milis < 100 ? "0"+props.milis : ""+props.milis)}
-                    </Typography> */}
-                </Grid>
+                {countdown}
             </Grid>
         </div>
     );
@@ -72,15 +79,35 @@ class Times extends Component {
 
         this.state = {
             min: 0,
-            secs: 0,
+            secs: 2,
             milis: 0,
+            over: true,
+            countdownVisible: true,
         }
 
+        this.userValuesCountdown = [0, 2, 0];
         this.gap = 10;
         this.timeoutId = null;
-        this.incrementTime = this.incrementTime.bind(this);
+        this.incrementTime = this.decrementTime.bind(this);
         this.changeTimeDisplay = this.changeTimeDisplay.bind(this);
         this.getCurTime = this.getCurTime.bind(this);
+        this.blink = this.blink.bind(this);
+    }
+
+    async blink() {
+        console.log("Ran0");
+        this.setState({countdownVisible: false});
+        await new Promise(r => setTimeout(r, 200));
+        console.log("Ran1");
+        this.setState({countdownVisible: true});
+        await new Promise(r => setTimeout(r, 200));
+        console.log("Ran2");
+        this.setState({countdownVisible: false});
+        await new Promise(r => setTimeout(r, 200));
+        console.log("Ran3");
+        this.setState({countdownVisible: true});
+        await new Promise(r => setTimeout(r, 200));
+        console.log("Ran4");
     }
 
     getCurTime() {
@@ -90,7 +117,8 @@ class Times extends Component {
     handleStartClick() {
         if(this.timeoutId == null) {
             let nextAt = new Date().getTime() + this.gap;
-            this.timeoutId = setTimeout(this.incrementTime(this.gap, nextAt), nextAt - new Date().getTime());
+            this.setState({over: false});
+            this.timeoutId = setTimeout(this.decrementTime(this.gap, nextAt), nextAt - new Date().getTime());
         }
 
         if(this.props.socket)
@@ -100,6 +128,7 @@ class Times extends Component {
     handleStopClick() {
         clearTimeout(this.timeoutId);
         this.timeoutId = null;
+        this.setState({over: true});
         this.props.saveTime(this.state.min, this.state.secs, this.state.milis);
 
         if(this.props.socket)
@@ -109,8 +138,9 @@ class Times extends Component {
     handleResetClick() {
         clearTimeout(this.timeoutId);
         this.timeoutId = null;
+        this.setState({over: true});
         this.props.saveTime(this.state.min, this.state.secs, this.state.milis);
-        this.setState({min: 0, secs: 0, milis: 0});
+        this.setState({min: this.userValuesCountdown[0], secs: this.userValuesCountdown[1], milis: this.userValuesCountdown[2]});
         this.props.onResetClick();
 
         if(this.props.socket)
@@ -119,20 +149,27 @@ class Times extends Component {
 
     changeTimeDisplay(gap_milis) {
         let {min, secs, milis} = this.state;
-        milis = milis + gap_milis;
-        if(milis > 99) {
-            secs = secs + Math.floor(milis/100);
-            milis = milis % 100;
-            if(secs > 59) {
-                min = min + Math.floor(secs/60);
-                secs = secs % 60;
+        milis = milis - gap_milis;
+        if(milis < 0) {
+            secs = secs + Math.floor(milis / 100);
+            milis = (100 - Math.abs(milis % 100))%100;
+            if(secs < 0) {
+                min = min + Math.floor(secs / 60);
+                secs = (60 - Math.abs(secs % 60))%60;
+         
+              	if(min <= 0) {
+                    console.log("Over!");
+                    this.blink();
+                    return "countdown_over";
+                }
             }
         }
 
         this.setState({min: min, secs: secs, milis: milis});
+        return "successful";
     }
 
-    incrementTime(gap, nextAt) {
+    decrementTime(gap, nextAt) {
         nextAt += gap;
         let interval = Date.now() - nextAt;
         let change_milis = 1;
@@ -143,15 +180,24 @@ class Times extends Component {
             change_milis = change_milis + passes + 1;
         }
 
-        this.changeTimeDisplay(change_milis);
-        
+        let changed = this.changeTimeDisplay(change_milis);
 
-        this.timeoutId = setTimeout(() => this.incrementTime(gap, nextAt), nextAt - new Date().getTime());
+        if(changed === "countdown_over") {
+            this.handleStopClick();
+        }
+        else if(changed === "successful"){
+            this.timeoutId = setTimeout(() => this.decrementTime(gap, nextAt), nextAt - new Date().getTime());
+        }
+    }
+
+    setCountdownValue(min, secs, milis) {
+        this.userValuesCountdown = [min, secs, milis];
+        this.setState({min: min, secs: secs, milis: milis});
     }
 
     render() {
         return (
-            <StyleDisplay min={this.state.min} secs={this.state.secs} milis={this.state.milis} onStartClick={() => this.handleStartClick()} onStopClick={() => this.handleStopClick()}  onResetClick={() => this.handleResetClick()} controls={this.props.controls}/>
+            <StyleDisplay min={this.state.min} secs={this.state.secs} milis={this.state.milis} onStartClick={() => this.handleStartClick()} onStopClick={() => this.handleStopClick()}  onResetClick={() => this.handleResetClick()} controls={this.props.controls} countdownVisible={this.state.countdownVisible}/>
         ); 
     }
 }
