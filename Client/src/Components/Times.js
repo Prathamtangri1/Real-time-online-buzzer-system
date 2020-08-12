@@ -76,9 +76,10 @@ class Times extends Component {
             milis: 0,
         }
 
-        this.intervalId = null;
-
+        this.gap = 10;
+        this.timeoutId = null;
         this.incrementTime = this.incrementTime.bind(this);
+        this.changeTimeDisplay = this.changeTimeDisplay.bind(this);
         this.getCurTime = this.getCurTime.bind(this);
     }
 
@@ -87,8 +88,9 @@ class Times extends Component {
     }
 
     handleStartClick() {
-        if(this.intervalId == null) {
-            this.intervalId = setInterval(this.incrementTime, 10);
+        if(this.timeoutId == null) {
+            let nextAt = new Date().getTime() + this.gap;
+            this.timeoutId = setTimeout(this.incrementTime(this.gap, nextAt), nextAt - new Date().getTime());
         }
 
         if(this.props.socket)
@@ -96,8 +98,8 @@ class Times extends Component {
     }
 
     handleStopClick() {
-        clearInterval(this.intervalId);
-        this.intervalId = null;
+        clearTimeout(this.timeoutId);
+        this.timeoutId = null;
         this.props.saveTime(this.state.min, this.state.secs, this.state.milis);
 
         if(this.props.socket)
@@ -105,8 +107,8 @@ class Times extends Component {
     }
 
     handleResetClick() {
-        clearInterval(this.intervalId);
-        this.intervalId = null;
+        clearTimeout(this.timeoutId);
+        this.timeoutId = null;
         this.props.saveTime(this.state.min, this.state.secs, this.state.milis);
         this.setState({min: 0, secs: 0, milis: 0});
         this.props.onResetClick();
@@ -115,25 +117,42 @@ class Times extends Component {
             this.props.socket.send('timer_reset');
     }
 
-    incrementTime() {
+    changeTimeDisplay(gap_milis) {
         let {min, secs, milis} = this.state;
-        milis = milis + 1;
+        milis = milis + gap_milis;
         if(milis > 99) {
-            secs = secs + 1;
-            milis = 0;
+            secs = secs + Math.floor(milis/100);
+            milis = milis % 100;
             if(secs > 59) {
-                min++;
-                secs = 0;
+                min = min + Math.floor(secs/60);
+                secs = secs % 60;
             }
         }
 
         this.setState({min: min, secs: secs, milis: milis});
     }
 
+    incrementTime(gap, nextAt) {
+        nextAt += gap;
+        let interval = Date.now() - nextAt;
+        let change_milis = 1;
+
+        if(interval > gap) {
+            let passes = Math.floor(interval/gap);
+            nextAt = nextAt + (passes+1)*gap;
+            change_milis = change_milis + passes + 1;
+        }
+
+        this.changeTimeDisplay(change_milis);
+        
+
+        this.timeoutId = setTimeout(() => this.incrementTime(gap, nextAt), nextAt - new Date().getTime());
+    }
+
     render() {
         return (
             <StyleDisplay min={this.state.min} secs={this.state.secs} milis={this.state.milis} onStartClick={() => this.handleStartClick()} onStopClick={() => this.handleStopClick()}  onResetClick={() => this.handleResetClick()} controls={this.props.controls}/>
-        );
+        ); 
     }
 }
 
