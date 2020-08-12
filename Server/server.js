@@ -31,7 +31,6 @@ io.on("connection", (socket) => {
     console.log(data);
     if(data === 'timer_start' || data === 'timer_stop' || data === 'timer_reset') {
       if(gameId !== '') {
-        console.log('came here');
         socket.to(gameId).send(data);
       }
     }
