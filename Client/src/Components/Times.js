@@ -3,6 +3,11 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import TimerSet from './TimerSet';
+import TimerIcon from '@material-ui/icons/Timer';
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import StopIcon from '@material-ui/icons/Stop';
+import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -23,43 +28,64 @@ const useStyles = makeStyles(theme => ({
         height: 80,
         width: 150,
     },
+    setTimerButton: {
+        margin: theme.spacing(1),
+        marginBottom: 50
+    },
+    TimerInvisible: {
+        color: '#f5f5f5',
+    }
 }));
 
 function StyleDisplay(props) {
     const classes = useStyles();
     let buttonDisplay = "";
+    let setTimerDisplay = "";
 
-    let countdown = "";
+    let timer = "";
 
-    if(props.countdownVisible === true) {
-        countdown = <Grid item xs alignContent="center">
+    if(props.timerVisible === true) {
+        timer = <Grid item xs alignContent="center">
                         <Typography variant="h1">
-                            {props.min > 9 ? "" + props.min : "0" + props.min}:{props.secs > 9 ? "" + props.secs : "0" + props.secs}:{props.milis > 9 ? "" + props.milis : "0" + props.milis}
+                            {props.mins > 9 ? "" + props.mins : "0" + props.mins}:{props.secs > 9 ? "" + props.secs : "0" + props.secs}:{props.milis > 9 ? "" + props.milis : "0" + props.milis}
                         </Typography>
                     </Grid>
     }
-    else if (props.countdownVisible === false) {
-        countdown = ""
+    else if (props.timerVisible === false) {
+        timer = <Grid item xs alignContent="center">
+                    <Typography variant="h1" className={classes.TimerInvisible}>
+                        {props.mins > 9 ? "" + props.mins : "0" + props.mins}:{props.secs > 9 ? "" + props.secs : "0" + props.secs}:{props.milis > 9 ? "" + props.milis : "0" + props.milis}
+                    </Typography>
+                </Grid>
     }
 
     if(props.controls === "on") {
         buttonDisplay = <Grid container spacing={3} className={classes.topGrid} justify="center" alignItems="center">
-                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStartClick}>
+                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStartClick} endIcon={<KeyboardArrowRightIcon />}>
                                 <Typography variant="h6">
                                     Start
                                 </Typography>
                             </Button>
-                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStopClick}>
+                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStopClick} endIcon={<StopIcon />}>
                                 <Typography variant="h6">
                                     Stop
                                 </Typography>
                             </Button>
-                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onResetClick}>
+                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onResetClick} endIcon={<RotateLeftIcon />}>
                                 <Typography variant="h6">
                                     Reset
                                 </Typography>
                             </Button>
                         </Grid>
+
+        setTimerDisplay = <Grid container spacing={1} className={classes.topGrid} justify="center"
+                            alignItems="center" alignContent="center">
+                                <Button variant="outlined" size="medium" color="primary" className={classes.setTimerButton} onClick={props.onSetTimer} endIcon={<TimerIcon />}>
+                                    <Typography variant="h6">
+                                        Set Timer
+                                    </Typography>
+                                </Button>
+                            </Grid>
     }
 
     return(
@@ -67,8 +93,9 @@ function StyleDisplay(props) {
             {buttonDisplay}
             <Grid container spacing={1} className={classes.topGrid} justify="center"
             alignItems="center" alignContent="center">
-                {countdown}
+                {timer}
             </Grid>
+            {setTimerDisplay}
         </div>
     );
 }
@@ -78,40 +105,46 @@ class Times extends Component {
         super(props);
 
         this.state = {
-            min: 0,
-            secs: 2,
-            milis: 0,
+            mins: this.props.default[0],
+            secs: this.props.default[1],
+            milis: this.props.default[2],
             over: true,
-            countdownVisible: true,
+            timerVisible: true,
+            setTimerDialogVisible: false,
         }
 
-        this.userValuesCountdown = [0, 2, 0];
+        this.userValuesTimer = [this.props.default[0], this.props.default[1], this.props.default[2]];
         this.gap = 10;
         this.timeoutId = null;
         this.incrementTime = this.decrementTime.bind(this);
         this.changeTimeDisplay = this.changeTimeDisplay.bind(this);
         this.getCurTime = this.getCurTime.bind(this);
         this.blink = this.blink.bind(this);
+        this.handleSetTimer = this.handleSetTimer.bind(this);
+        this.handleSetTimerValues = this.handleSetTimerValues.bind(this);
+
+        if(this.props.socket) {
+            this.props.socket.on("timer_change", (data) => {
+                console.log("timer_changed_caught");
+                console.log(data);
+                this.handleSetTimerValues(data.mins, data.secs, data.milis);
+            });
+        }
+
     }
 
     async blink() {
-        console.log("Ran0");
-        this.setState({countdownVisible: false});
-        await new Promise(r => setTimeout(r, 200));
-        console.log("Ran1");
-        this.setState({countdownVisible: true});
-        await new Promise(r => setTimeout(r, 200));
-        console.log("Ran2");
-        this.setState({countdownVisible: false});
-        await new Promise(r => setTimeout(r, 200));
-        console.log("Ran3");
-        this.setState({countdownVisible: true});
-        await new Promise(r => setTimeout(r, 200));
-        console.log("Ran4");
+        for(let i = 0; i < 2; i++) {
+            this.setState({timerVisible: false});
+            await new Promise(r => setTimeout(r, 200));
+            
+            this.setState({timerVisible: true});
+            await new Promise(r => setTimeout(r, 200));
+        }
     }
 
     getCurTime() {
-        this.props.saveTime(this.state.min, this.state.secs, this.state.milis);
+        this.props.saveTime(this.state.mins, this.state.secs, this.state.milis);
     }
 
     handleStartClick() {
@@ -129,7 +162,6 @@ class Times extends Component {
         clearTimeout(this.timeoutId);
         this.timeoutId = null;
         this.setState({over: true});
-        this.props.saveTime(this.state.min, this.state.secs, this.state.milis);
 
         if(this.props.socket)
             this.props.socket.send('timer_stop');
@@ -139,8 +171,7 @@ class Times extends Component {
         clearTimeout(this.timeoutId);
         this.timeoutId = null;
         this.setState({over: true});
-        this.props.saveTime(this.state.min, this.state.secs, this.state.milis);
-        this.setState({min: this.userValuesCountdown[0], secs: this.userValuesCountdown[1], milis: this.userValuesCountdown[2]});
+        this.setState({mins: this.userValuesTimer[0], secs: this.userValuesTimer[1], milis: this.userValuesTimer[2]});
         this.props.onResetClick();
 
         if(this.props.socket)
@@ -148,16 +179,16 @@ class Times extends Component {
     }
 
     changeTimeDisplay(gap_milis) {
-        let {min, secs, milis} = this.state;
+        let {mins, secs, milis} = this.state;
         milis = milis - gap_milis;
         if(milis < 0) {
             secs = secs + Math.floor(milis / 100);
             milis = (100 - Math.abs(milis % 100))%100;
             if(secs < 0) {
-                min = min + Math.floor(secs / 60);
+                mins = mins + Math.floor(secs / 60);
                 secs = (60 - Math.abs(secs % 60))%60;
          
-              	if(min <= 0) {
+              	if(mins <= 0) {
                     console.log("Over!");
                     this.blink();
                     return "countdown_over";
@@ -165,7 +196,7 @@ class Times extends Component {
             }
         }
 
-        this.setState({min: min, secs: secs, milis: milis});
+        this.setState({mins: mins, secs: secs, milis: milis});
         return "successful";
     }
 
@@ -190,14 +221,34 @@ class Times extends Component {
         }
     }
 
-    setCountdownValue(min, secs, milis) {
-        this.userValuesCountdown = [min, secs, milis];
-        this.setState({min: min, secs: secs, milis: milis});
+    handleSetTimer() {
+        this.setState({setTimerDialogVisible: true});
+        // this.userValuesTimer = [mins, secs, milis];
+        // this.setState({mins: mins, secs: secs, milis: milis});
+    }
+
+    handleSetTimerValues(mins, secs, milis) {
+        this.userValuesTimer = [mins, secs, milis];
+        this.setState({mins: mins, secs: secs, milis: milis});
+        this.setState({setTimerDialogVisible: false});
+        this.props.saveTime(this.state.mins, this.state.secs, this.state.milis);
+
+        if(this.props.controls === "on"){
+            console.log("timer_changed_Sent");
+            this.props.socket.emit("timer_change", {mins: mins, secs: secs, milis: milis});
+        }
     }
 
     render() {
+        let setTimerDialog = '';
+        if(this.state.setTimerDialogVisible === true) {
+            setTimerDialog = <TimerSet timerInfo={(mins, secs, milis) => {this.handleSetTimerValues(mins, secs, milis)}} default={[this.state.mins, this.state.secs, this.state.milis]}></TimerSet>
+        }
         return (
-            <StyleDisplay min={this.state.min} secs={this.state.secs} milis={this.state.milis} onStartClick={() => this.handleStartClick()} onStopClick={() => this.handleStopClick()}  onResetClick={() => this.handleResetClick()} controls={this.props.controls} countdownVisible={this.state.countdownVisible}/>
+            <div>
+                <StyleDisplay mins={this.state.mins} secs={this.state.secs} milis={this.state.milis} onStartClick={() => this.handleStartClick()} onStopClick={() => this.handleStopClick()}  onResetClick={() => this.handleResetClick()} controls={this.props.controls} timerVisible={this.state.timerVisible} onSetTimer={() => this.handleSetTimer()}/>
+                {setTimerDialog}
+            </div>
         ); 
     }
 }

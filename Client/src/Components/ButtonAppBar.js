@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
   title: {
     flexGrow: 1,
     fontFamily: "Playball",
-    fontSize: 35,
+    fontSize: 30,
   },
 
   title2: {

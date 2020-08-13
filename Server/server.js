@@ -6,11 +6,7 @@ const port = process.env.PORT || 4001;
 const index = require("./routes/index");
 
 const app = express();
-
-
-
 app.use(index);
-
 const server = http.createServer(app);
 
 const io = socketIo(server);
@@ -36,7 +32,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on('request_gameId', () => {
+  socket.on('request_gameId', (timer) => {
     gameId = gameIdCurrent.toString();
     gameIdCurrent++;
 
@@ -46,7 +42,7 @@ io.on("connection", (socket) => {
 
     socket.join(gameId);
 
-    games.push({gameId: gameId, host: host, nPlayers: 0, pNames: [], pIds: []});
+    games.push({gameId: gameId, host: host, nPlayers: 0, pNames: [], pIds: [], timer: timer});
 
     console.log(games);
   })
@@ -54,7 +50,7 @@ io.on("connection", (socket) => {
   
   socket.on('join_room', data => {
     let flag = 0;
-    games.forEach(element => {
+    for(element in games){
       if (element.gameId === data.gameId) {
         flag = 1;
         if (element.pNames.indexOf(data.pName) === -1) {
@@ -70,14 +66,16 @@ io.on("connection", (socket) => {
 
           console.log(games);
           socket.emit('join_room_response', 'Successful');
+          socket.emit("timer_change", element.timer);
 
           io.to(element.host).emit('new_player', pName);
         }
         else {
           socket.emit('join_room_response','pName_repeat');
         }
+        break;
       }
-    });
+    };
     
     if(flag === 0)
       socket.emit('join_room_response','gameId doesn\'t exist');
@@ -87,12 +85,13 @@ io.on("connection", (socket) => {
     let player_id = '';
 
     let flag = 0;
-    games.forEach(element => {
+    for(element in games){
       if (element.gameId === gameId) {
         flag = 1;
         player_id = element.pIds[element.pNames.indexOf(pName)];
+        break;
       }
-    });
+    };
 
     if(flag === 0)
       socket.emit("player_delete_response", "player to delete doesn't exist");
@@ -112,10 +111,24 @@ io.on("connection", (socket) => {
     io.to(host).emit('player_buzzed', data);
   });
 
+  socket.on("timer_change", (data) => {
+    console.log("timer_changed");
+    console.log(data);
+
+    for(element in games){
+      if (element.gameId === gameId) {
+        element.timer = data;
+        break;
+      }
+    };
+
+    socket.to(gameId).emit("timer_change", data);
+  });
+
   socket.on("disconnect", () => {
     console.log("Client disconnected");
 
-    games.forEach(element => {
+    for(element in games){
       if (element.gameId === gameId) {
         if (socket.id !== element.host) {
           --element.nPlayers;
@@ -141,9 +154,9 @@ io.on("connection", (socket) => {
           console.log("player sent for delete: " + pName);
         }
         // socket.emit('player_disconnected', pName);
-
+        break;
       }
-    });
+    };
 
     console.log(games);
 

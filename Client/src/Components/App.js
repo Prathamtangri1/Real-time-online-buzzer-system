@@ -37,8 +37,8 @@ class App extends Component {
     this.pnames = "Host";
     this.numberOfPlayers = 0;
     this.milis = 0;
-    this.sec = 0;
-    this.min = 0;
+    this.secs = 5;
+    this.mins = 0;
     //change code so we have only these variables and not in state
 
     this.times = React.createRef();
@@ -81,7 +81,7 @@ class App extends Component {
 
       this.times.current.getCurTime();
 
-      let curTime = this.convert(this.min, this.sec, this.milis);
+      let curTime = this.convert(this.mins, this.secs, this.milis);
       temp.push({pName: data.pName, time: curTime});
       console.log("received: " + data.pName);
       console.log(temp);
@@ -90,14 +90,14 @@ class App extends Component {
     });
   }
 
-  convert(min, sec, milis) {
-    return min.toString() + ":" + sec.toString() + ":" + milis.toString();
+  convert(mins, secs, milis) {
+    return mins.toString() + ":" + secs.toString() + ":" + milis.toString();
   }
 
-  saveCurTime(min, sec, milis) {
+  saveCurTime(mins, secs, milis) {
     this.milis = milis;
-    this.sec = sec;
-    this.min  = min;
+    this.secs = secs;
+    this.mins  = mins;
   }
 
   handleResetClick() {
@@ -128,7 +128,7 @@ class App extends Component {
   handleNewGame() {
     this.setState({options: "game_created", ptype: "host"});
 
-    this.socket.emit('request_gameId');
+    this.socket.emit('request_gameId', {mins: this.mins, secs: this.secs, milis: this.milis});
 
     this.socket.on('new_gameId', (data) => {
      this.setState({gameId: data});
@@ -163,7 +163,7 @@ class App extends Component {
       //ng = <NewGameOptions playerNames={(num) => {this.setState({options: "game_created"}); this.numberOfPlayers = num; this.pnames = [];}} gameId={(gameId) => this.setState({gameId: gameId});}/>
       hostSees =  <div className="host">
                     <div className="times">
-                      <Times ref={this.times} onResetClick={() => this.handleResetClick()} saveTime={(min, secs, milis) => this.saveCurTime(min, secs, milis)} 
+                      <Times ref={this.times} onResetClick={() => this.handleResetClick()} saveTime={(mins, secs, milis) => this.saveCurTime(mins, secs, milis)} default={[this.mins, this.secs, this.milis]}
                       // onControlClick={(type) => this.handleControlsClick(type)} 
                       controls = {"on"} socket={this.socket}/>
                     </div>
@@ -188,7 +188,7 @@ class App extends Component {
       newClientSees = "";
       playerSees =  <div>
                       <div className="times">
-                        <Times ref={this.times} onResetClick={() => this.handleResetClick()} saveTime={(min, secs, milis) => this.saveCurTime(min, secs, milis)} controls = {"off"} />
+                        <Times ref={this.times} onResetClick={() => this.handleResetClick()} saveTime={(mins, secs, milis) => this.saveCurTime(mins, secs, milis)} controls = {"off"} socket={this.socket} default={[this.mins, this.secs, this.milis]}/>
                       </div>
                       <div className="buzzer">
                         <CentreButton onClick={this.handleBuzzerClick}/>
@@ -198,7 +198,7 @@ class App extends Component {
     else {
       newClientSees = <div>
                         <div className="times">
-                          <Times ref={this.times} onResetClick={() => this.handleResetClick()} saveTime={(min, secs, milis) => this.saveCurTime(min, secs, milis)} controls = {"off"} />
+                          <Times ref={this.times} onResetClick={() => this.handleResetClick()} saveTime={(mins, secs, milis) => this.saveCurTime(mins, secs, milis)} controls = {"off"} socket={this.socket} default={[this.mins, this.secs, this.milis]}/>
                         </div>
                         <div className="buzzer">
                           <CentreButton onClick={this.handleBuzzerClick}/>
