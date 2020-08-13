@@ -94,11 +94,11 @@ export default function JoinGameOptions(props) {
           {error}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="secondary">
-            Cancel
-          </Button>
           <Button onClick={handleSubmit} color="primary">
             Submit
+          </Button>
+          <Button onClick={handleClose} color="secondary">
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>
