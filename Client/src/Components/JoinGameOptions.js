@@ -8,12 +8,7 @@ import Slide from '@material-ui/core/Slide';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import TextField from '@material-ui/core/TextField';
-import MuiAlert from '@material-ui/lab/Alert';
 import Tooltip from '@material-ui/core/Tooltip';
-
-function Alert(props) {
-  return <MuiAlert elevation={0} variant="filled" {...props} />;
-}
 
 const useStyles = makeStyles(theme => ({
   margin: {
@@ -39,13 +34,26 @@ export default function JoinGameOptions(props) {
     pname: "",
   });
 
-  let error = "";
+  let errorGameId = [false, ""];
+  let errorPname = [false, ""];
 
   if(props.error === "pName_repeat") {
-    error = <Alert severity="error">This Pname has already been taken</Alert>;
+    errorPname[0] = true;
+    errorPname[1] = 'This Pname has already been taken';
+    errorGameId[0] = false;
+    errorGameId[1] = '';
   }
   else if(props.error === "gameId doesn't exist") {
-    error = <Alert severity="error">This game doesn't exist</Alert>;
+    errorGameId[0] = true;
+    errorGameId[1] = 'This game doesn\'t exist';
+    errorPname[0] = false;
+    errorPname[1] = '';
+  }
+  else {
+    errorPname[0] = false;
+    errorPname[1] = '';
+    errorGameId[0] = false;
+    errorGameId[1] = '';   
   }
 
   function handleClose() {
@@ -77,6 +85,8 @@ export default function JoinGameOptions(props) {
                 onChange={handleChange('gameId')}
                 margin="normal"
                 variant="outlined"
+                error={errorGameId[0]}
+                helperText={errorGameId[1]}
               />
             </Tooltip>
             <Tooltip title="Choose a unique Pname" arrow>
@@ -88,17 +98,15 @@ export default function JoinGameOptions(props) {
                 onChange={handleChange('pname')}
                 margin="normal"
                 variant="outlined"
+                error={errorPname[0]}
+                helperText={errorPname[1]}
               />
             </Tooltip>
           </DialogContentText>
-          {error}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleSubmit} color="primary">
             Submit
-          </Button>
-          <Button onClick={handleClose} color="secondary">
-            Cancel
           </Button>
         </DialogActions>
       </Dialog>
