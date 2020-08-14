@@ -53,7 +53,11 @@ class App extends Component {
       // this.socket.send(data + ' received');
 
       if(data === 'timer_start' || data === 'timer_stop' || data === 'timer_reset') {
-        this.handleHostOrders(data);
+        console.log("received timer message: " + data);
+        if(this.state.ptype === "player"){
+          this.handleHostOrders(data);
+          console.log("received timer message2: " + data);
+        }
       }
     });
 
@@ -117,12 +121,14 @@ class App extends Component {
   }
 
   handleBuzzerClick() {
-    this.times.current.handleStopClick();
-    let temp = this.pnames;
-    let pressTime = '5';
-    console.log("sent details: " + this.pnames);
+    let status = this.times.current.handleStopClick();
 
-    this.socket.emit('player_buzzed', {pName: temp, time: pressTime});
+    if(status === "Stopped") {
+      let temp = this.pnames;
+      console.log("sent details: " + this.pnames);
+
+      this.socket.emit('player_buzzed', {pName: temp});
+    }
   }
 
   handleNewGame() {
@@ -136,15 +142,15 @@ class App extends Component {
   }
 
   handleJoinGame(p_name, game_Id) {
-    this.setState({gameId: game_Id});
-    this.pnames = p_name;
-
     this.socket.emit('join_room', {gameId: game_Id, pName: p_name});
 
-
     this.socket.on('join_room_response', (data) => {
-      if(data === 'Successful')
+      if(data === 'Successful'){
+        this.pnames = p_name;
         this.setState({options: "game_joined", ptype: "player"});
+        this.setState({gameId: game_Id});
+        console.log("pnames: " + this.pnames);
+      }
       else if (data === 'pName_repeat')
         this.setState({options: "join_error_pName"});
       else if (data === 'gameId doesn\'t exist')

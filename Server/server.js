@@ -24,7 +24,7 @@ io.on("connection", (socket) => {
   let host = '';
 
   socket.on('message', data => {
-    console.log(data);
+    console.log("pName: " + pName + " data: " + data);
     if(data === 'timer_start' || data === 'timer_stop' || data === 'timer_reset') {
       if(gameId !== '') {
         socket.to(gameId).send(data);
@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
   
   socket.on('join_room', data => {
     let flag = 0;
-    for(element in games){
+    for(element of games){
       if (element.gameId === data.gameId) {
         flag = 1;
         if (element.pNames.indexOf(data.pName) === -1) {
@@ -85,7 +85,7 @@ io.on("connection", (socket) => {
     let player_id = '';
 
     let flag = 0;
-    for(element in games){
+    for(element of games){
       if (element.gameId === gameId) {
         flag = 1;
         player_id = element.pIds[element.pNames.indexOf(pName)];
@@ -115,7 +115,7 @@ io.on("connection", (socket) => {
     console.log("timer_changed");
     console.log(data);
 
-    for(element in games){
+    for(element of games){
       if (element.gameId === gameId) {
         element.timer = data;
         break;
@@ -128,7 +128,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("Client disconnected");
 
-    for(element in games){
+    for(element of games){
       if (element.gameId === gameId) {
         if (socket.id !== element.host) {
           --element.nPlayers;

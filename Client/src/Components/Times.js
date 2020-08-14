@@ -122,6 +122,7 @@ class Times extends Component {
         this.blink = this.blink.bind(this);
         this.handleSetTimer = this.handleSetTimer.bind(this);
         this.handleSetTimerValues = this.handleSetTimerValues.bind(this);
+        this.handleStopClick = this.handleStopClick.bind(this);
 
         if(this.props.socket) {
             this.props.socket.on("timer_change", (data) => {
@@ -154,17 +155,24 @@ class Times extends Component {
             this.timeoutId = setTimeout(this.decrementTime(this.gap, nextAt), nextAt - new Date().getTime());
         }
 
-        if(this.props.socket)
+        if(this.props.socket && this.props.controls === "on")
             this.props.socket.send('timer_start');
     }
 
     handleStopClick() {
-        clearTimeout(this.timeoutId);
-        this.timeoutId = null;
-        this.setState({over: true});
+        if(this.timeoutId !== null) {
+            clearTimeout(this.timeoutId);
+            this.timeoutId = null;
+            this.setState({over: true});
 
-        if(this.props.socket)
+            if(this.props.socket && this.props.controls === "on")
             this.props.socket.send('timer_stop');
+
+            return "Stopped";
+        }
+        else {
+            return "Already stopped";
+        }   
     }
 
     handleResetClick() {
@@ -174,7 +182,7 @@ class Times extends Component {
         this.setState({mins: this.userValuesTimer[0], secs: this.userValuesTimer[1], milis: this.userValuesTimer[2]});
         this.props.onResetClick();
 
-        if(this.props.socket)
+        if(this.props.socket && this.props.controls === "on")
             this.props.socket.send('timer_reset');
     }
 
