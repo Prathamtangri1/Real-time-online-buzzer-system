@@ -95,7 +95,13 @@ class App extends Component {
   }
 
   convert(mins, secs, milis) {
-    return mins.toString() + ":" + secs.toString() + ":" + milis.toString();
+    let fixedText = ["", ":", ":"];
+    
+    fixedText[0] = mins < 10 ? "0" : "";
+    fixedText[1] = secs < 10 ? ":0" : ":";
+    fixedText[2] = milis < 10 ? ":0" : ":";
+    
+    return fixedText[0] + mins.toString() + fixedText[1] + secs.toString() + fixedText[2] + milis.toString();
   }
 
   saveCurTime(mins, secs, milis) {
@@ -109,10 +115,10 @@ class App extends Component {
   }
 
   handleHostOrders(order) {
-    if (order === "timer_start"){
+    if (order === "timer_start" && this.state.buzzed.length === 0){
       this.times.current.handleStartClick();
     }
-    else if (order === "timer_stop") {
+    else if (order === "timer_stop" && this.state.buzzed.length === 0) {
       this.times.current.handleStopClick();
     }
     else if (order === "timer_reset"){
@@ -126,7 +132,7 @@ class App extends Component {
     if(status === "Stopped") {
       let temp = this.pnames;
       console.log("sent details: " + this.pnames);
-
+      this.setState({buzzed: [this.pnames]});
       this.socket.emit('player_buzzed', {pName: temp});
     }
   }
