@@ -40,9 +40,51 @@ const useStyles = makeStyles(theme => ({
 function StyleDisplay(props) {
     const classes = useStyles();
     let buttonDisplay = "";
-    let setTimerDisplay = "";
-
     let timer = "";
+
+    let buttonDisable = [false, true, false];
+    let button2 = '';
+
+    if(props.curStatus === "timer_started") {
+        buttonDisable = [true, false, true];
+        button2 = <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStopClick} endIcon={<StopIcon />} disabled={buttonDisable[1]}>
+                    <Typography variant="h6">
+                        Stop
+                    </Typography>
+                </Button>
+    }
+    else if (props.curStatus === "timer_stopped") {
+        buttonDisable = [false, false, true];
+        button2 = <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onResetClick} endIcon={<RotateLeftIcon />} disabled={buttonDisable[1]}>
+                    <Typography variant="h6">
+                        Reset
+                    </Typography>
+                </Button>
+    }
+    else if (props.curStatus === "timer_reset") {
+        buttonDisable = [false, true, false];
+        button2 = <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStopClick} endIcon={<StopIcon />} disabled={buttonDisable[1]}>
+                    <Typography variant="h6">
+                        Stop
+                    </Typography>
+                </Button>
+    }
+    else if (props.curStatus === "timer_zero") {
+        buttonDisable = [true, false, false];
+        button2 = <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onResetClick} endIcon={<RotateLeftIcon />} disabled={buttonDisable[1]}>
+                    <Typography variant="h6">
+                        Reset
+                    </Typography>
+                </Button>
+    }
+    else if (props.curStatus === "timer_initial") {
+        buttonDisable = [false, false, false];
+        button2 = <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onResetClick} endIcon={<RotateLeftIcon />} disabled={buttonDisable[1]}>
+                    <Typography variant="h6">
+                        Reset
+                    </Typography>
+                </Button>
+    }
 
     if(props.timerVisible === true) {
         timer = <Grid item xs alignContent="center">
@@ -61,41 +103,27 @@ function StyleDisplay(props) {
 
     if(props.controls === "on") {
         buttonDisplay = <Grid container spacing={3} className={classes.topGrid} justify="center" alignItems="center">
-                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStartClick} endIcon={<KeyboardArrowRightIcon />}>
+                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStartClick} endIcon={<KeyboardArrowRightIcon />} disabled={buttonDisable[0]}>
                                 <Typography variant="h6">
                                     Start
                                 </Typography>
                             </Button>
-                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onStopClick} endIcon={<StopIcon />}>
-                                <Typography variant="h6">
-                                    Stop
-                                </Typography>
-                            </Button>
-                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onResetClick} endIcon={<RotateLeftIcon />}>
-                                <Typography variant="h6">
-                                    Reset
-                                </Typography>
-                            </Button>
-                        </Grid>
-
-        setTimerDisplay = <Grid container spacing={1} className={classes.topGrid} justify="center"
-                            alignItems="center" alignContent="center">
-                                <Button variant="outlined" size="medium" color="primary" className={classes.setTimerButton} onClick={props.onSetTimer} endIcon={<TimerIcon />}>
+                            {button2}
+                            <Button variant="contained" size="large" color="primary" className={classes.button} onClick={props.onSetTimer} endIcon={<TimerIcon />} disabled={buttonDisable[2]}>
                                     <Typography variant="h6">
                                         Set Timer
                                     </Typography>
-                                </Button>
-                            </Grid>
+                            </Button>
+                        </Grid>
     }
 
     return(
         <div className={classes.root}>
-            {buttonDisplay}
             <Grid container spacing={1} className={classes.topGrid} justify="center"
             alignItems="center" alignContent="center">
                 {timer}
             </Grid>
-            {setTimerDisplay}
+            {buttonDisplay}
         </div>
     );
 }
@@ -108,6 +136,7 @@ class Times extends Component {
             mins: this.props.default[0],
             secs: this.props.default[1],
             milis: this.props.default[2],
+            status: "timer_initial",
             over: true,
             timerVisible: true,
             setTimerDialogVisible: false,
@@ -151,7 +180,7 @@ class Times extends Component {
     handleStartClick() {
         if(this.timeoutId == null) {
             let nextAt = new Date().getTime() + this.gap;
-            this.setState({over: false});
+            this.setState({over: false, status: "timer_started"});
             this.timeoutId = setTimeout(this.decrementTime(this.gap, nextAt), nextAt - new Date().getTime());
         }
 
@@ -163,7 +192,7 @@ class Times extends Component {
         if(this.timeoutId !== null) {
             clearTimeout(this.timeoutId);
             this.timeoutId = null;
-            this.setState({over: true});
+            this.setState({over: true, status: "timer_stopped"});
 
             if(this.props.socket && this.props.controls === "on")
             this.props.socket.send('timer_stop');
@@ -171,6 +200,7 @@ class Times extends Component {
             return "Stopped";
         }
         else {
+            this.setState({over: true, status: "timer_zero"});
             return "Already stopped";
         }   
     }
@@ -178,7 +208,7 @@ class Times extends Component {
     handleResetClick() {
         clearTimeout(this.timeoutId);
         this.timeoutId = null;
-        this.setState({over: true});
+        this.setState({over: true, status: "timer_reset"});
         this.setState({mins: this.userValuesTimer[0], secs: this.userValuesTimer[1], milis: this.userValuesTimer[2]});
         this.props.onResetClick();
 
@@ -222,6 +252,8 @@ class Times extends Component {
         let changed = this.changeTimeDisplay(change_milis);
 
         if(changed === "countdown_over") {
+            clearTimeout(this.timeoutId);
+            this.timeoutId = null;
             this.handleStopClick();
         }
         else if(changed === "successful"){
@@ -254,7 +286,7 @@ class Times extends Component {
         }
         return (
             <div>
-                <StyleDisplay mins={this.state.mins} secs={this.state.secs} milis={this.state.milis} onStartClick={() => this.handleStartClick()} onStopClick={() => this.handleStopClick()}  onResetClick={() => this.handleResetClick()} controls={this.props.controls} timerVisible={this.state.timerVisible} onSetTimer={() => this.handleSetTimer()}/>
+                <StyleDisplay mins={this.state.mins} secs={this.state.secs} milis={this.state.milis} onStartClick={() => this.handleStartClick()} onStopClick={() => this.handleStopClick()}  onResetClick={() => this.handleResetClick()} controls={this.props.controls} timerVisible={this.state.timerVisible} onSetTimer={() => this.handleSetTimer()} curStatus={this.state.status}/>
                 {setTimerDialog}
             </div>
         ); 
