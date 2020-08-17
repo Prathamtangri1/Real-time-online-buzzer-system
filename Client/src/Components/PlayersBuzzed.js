@@ -10,30 +10,19 @@ import TableRow from '@material-ui/core/TableRow';
 const useStyles = makeStyles({
   table: {
     minWidth: 100,
-    background: '#f5f5f5',
+    background: 'inherit',
   },
+  TableContainer: {
+    maxHeight: 270,
+  }
 });
-
-/* function createData(name, time) {
-  return { name,time };
-} */
-
-/* const rows = [
-  createData('Frozen yoghurt', 159),
-  createData('Ice cream sandwich', 237),
-  createData('Eclair', 262),
-  createData('Cupcake', 305),
-  createData('Gingerbread', 356),
-]; */
 
 export default function PlayersBuzzed(props) {
   const classes = useStyles();
 
-
-
   return (
     <TableContainer>
-      <Table className={classes.table} aria-label="simple table">
+      <Table stickyHeader className={classes.table} aria-label="simple table">
         <TableHead>
           <TableRow>
             <TableCell>Player</TableCell>
@@ -42,7 +31,7 @@ export default function PlayersBuzzed(props) {
         </TableHead>
         <TableBody>
           {props.buzzed.map((row) => (
-            <TableRow key={row.pName}>
+            <TableRow hover key={row.pName}>
               <TableCell component="th" scope="row">
                 {row.pName}
               </TableCell>
