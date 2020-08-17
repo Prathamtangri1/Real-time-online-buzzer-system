@@ -12,8 +12,15 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'inherit',
   },
+  listSize: {
+    maxHeight: 270,
+    overflow: 'auto',
+  },
+  ListItem: {
+    height: 45,
+  }
 }));
 
 
@@ -37,7 +44,7 @@ export default function PlayersJoined(props) {
 
   return (
     <div className={classes.root}>
-      <List component="nav" aria-label="main mailbox folders">
+      <List component="nav" aria-label="main mailbox folders" className={classes.listSize}>
         {players}
       </List>
     </div>
