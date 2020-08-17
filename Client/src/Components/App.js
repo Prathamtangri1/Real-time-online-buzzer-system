@@ -1,5 +1,8 @@
 import React, {Component} from 'react';
 import './App.css';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
+import Divider from '@material-ui/core/Divider';
 import ButtonAppBar from './ButtonAppBar.js';
 import CentreButton from './CentreButton.js';
 import InitialOptions from './InitialOptions.js';
@@ -179,20 +182,24 @@ class App extends Component {
                       // onControlClick={(type) => this.handleControlsClick(type)} 
                       controls = {"on"} socket={this.socket}/>
                     </div>
-                    <hr className="hr"/>
-                    <div className="playersBuzzed">
-                      <Typography variant="h5" gutterBottom>
-                        Players Buzzed
-                      </Typography>
-                      <PlayersBuzzed buzzed={this.state.buzzed}/>
-                    </div>
-                    <hr className="hr2"/>
-                    <div className="playersBuzzed">
-                      <Typography variant="h5" gutterBottom>
-                        Players Joined
-                      </Typography>
-                      <PlayersJoined players={this.state.players} onPlayerDelete={(pName) => this.handlePlayerDelete(pName)}/>
-                    </div>
+                    <Grid container spacing={2} justify="space-evenly" alignItems="flex-start" alignContent="center">
+                      <Grid item xs={5}>
+                        <Paper elevation={2}  className="buzzedPaper">
+                          <Typography variant="h5" gutterBottom>
+                            Players Buzzed
+                          </Typography>
+                          <PlayersBuzzed buzzed={this.state.buzzed}/>
+                        </Paper>
+                      </Grid>
+                      <Grid item xs={5}>
+                        <Paper elevation={2} className="buzzedPaper">
+                          <Typography variant="h5" gutterBottom>
+                            Players Joined
+                          </Typography>
+                          <PlayersJoined players={this.state.players} onPlayerDelete={(pName) => this.handlePlayerDelete(pName)}/>
+                        </Paper>
+                      </Grid>
+                    </Grid>
                   </div>
 
     }

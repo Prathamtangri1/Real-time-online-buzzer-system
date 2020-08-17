@@ -24,10 +24,9 @@
 }
 
 .playersBuzzed{
-  max-width: 100vw;
-  min-width: 50vw;
   display: table;
   margin: 0 auto;
+  margin-bottom: 10vh;
 }
 
 .hr {
@@ -41,4 +40,10 @@
   margin-bottom: 20px;
   width: 60vw;
   background-color: rgba(0, 0, 0, 0.12);
+}
+
+.buzzedPaper {
+  /* width: 80vw; */
+  padding: 5%;
+  min-height: 35vh;
 }
