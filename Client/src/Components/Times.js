@@ -8,15 +8,19 @@ import TimerIcon from '@material-ui/icons/Timer';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import StopIcon from '@material-ui/icons/Stop';
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
+import Paper from '@material-ui/core/Paper';
 
 const useStyles = makeStyles(theme => ({
     root: {
         flexGrow: 1,
         marginTop: 20,
+        alignContent: "center",
+        justify: "center",
+        textAlign: "center",
     },
     topGrid: {
-        marginTop: 10,
         textAlign: "center",
+        marginBottom: 10,
     },
     paper: {
         padding: theme.spacing(2),
@@ -34,6 +38,9 @@ const useStyles = makeStyles(theme => ({
     },
     TimerInvisible: {
         color: '#f5f5f5',
+    },
+    timerPaper: {
+        width: "80%",
     }
 }));
 
@@ -119,11 +126,16 @@ function StyleDisplay(props) {
 
     return(
         <div className={classes.root}>
-            <Grid container spacing={1} className={classes.topGrid} justify="center"
-            alignItems="center" alignContent="center">
-                {timer}
+            <Grid container spacing={1}  justify="center"
+                alignItems="center" alignContent="center">
+                {/* <Paper elevation={3} className={classes.timerPaper} > */}
+                    <Grid container spacing={1} className={classes.topGrid} justify="center"
+                    alignItems="center" alignContent="center">
+                        {timer}
+                    </Grid>
+                    {buttonDisplay}
+                {/* </Paper> */}
             </Grid>
-            {buttonDisplay}
         </div>
     );
 }
@@ -285,10 +297,10 @@ class Times extends Component {
             setTimerDialog = <TimerSet timerInfo={(mins, secs, milis) => {this.handleSetTimerValues(mins, secs, milis)}} default={[this.state.mins, this.state.secs, this.state.milis]}></TimerSet>
         }
         return (
-            <div>
+            <Grid container spacing={1}  justify="center" alignItems="center" alignContent="center">
                 <StyleDisplay mins={this.state.mins} secs={this.state.secs} milis={this.state.milis} onStartClick={() => this.handleStartClick()} onStopClick={() => this.handleStopClick()}  onResetClick={() => this.handleResetClick()} controls={this.props.controls} timerVisible={this.state.timerVisible} onSetTimer={() => this.handleSetTimer()} curStatus={this.state.status}/>
                 {setTimerDialog}
-            </div>
+            </Grid>
         ); 
     }
 }
