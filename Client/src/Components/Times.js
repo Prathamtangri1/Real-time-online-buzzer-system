@@ -8,7 +8,6 @@ import TimerIcon from '@material-ui/icons/Timer';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import StopIcon from '@material-ui/icons/Stop';
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
-import Paper from '@material-ui/core/Paper';
 
 const useStyles = makeStyles(theme => ({
     root: {
