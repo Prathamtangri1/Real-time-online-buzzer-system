@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import './App.css';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import Divider from '@material-ui/core/Divider';
 import ButtonAppBar from './ButtonAppBar.js';
 import CentreButton from './CentreButton.js';
 import InitialOptions from './InitialOptions.js';
@@ -42,13 +41,27 @@ class App extends Component {
     this.milis = 0;
     this.secs = 5;
     this.mins = 0;
-    //change code so we have only these variables and not in state
 
     this.times = React.createRef();
+    this.initialOptions = React.createRef();
 
     this.socket = socketIOClient(ENDPOINT);
     this.socket.on('connect', () => {
       console.log('Connected to Server');
+    });
+
+    this.socket.on('disconnect', () => {
+      console.log("disconnected");
+      this.setState({
+        winner: false,
+        options: "initial",
+        ptype: "",
+        players: [],
+        gameId: '',
+        buzzed: [],
+       });
+
+      this.initialOptions.current.startAgain();
     });
 
     this.socket.on('message', data => {
@@ -175,7 +188,6 @@ class App extends Component {
     let jg="", hostSees="", playerSees="", newClientSees="";
     if(this.state.options === "game_created" && this.state.ptype === "host") {
       newClientSees = "";
-      //ng = <NewGameOptions playerNames={(num) => {this.setState({options: "game_created"}); this.numberOfPlayers = num; this.pnames = [];}} gameId={(gameId) => this.setState({gameId: gameId});}/>
       hostSees =  <div className="host">
                     <div className="times">
                       <Times ref={this.times} onResetClick={() => this.handleResetClick()} saveTime={(mins, secs, milis) => this.saveCurTime(mins, secs, milis)} default={[this.mins, this.secs, this.milis]}
@@ -224,10 +236,6 @@ class App extends Component {
                         </div>
                       </div>
     }
-
-    // if(this.state.options === "pnames") {
-    //   pnames = <PlayerNameOptions numberOfPlayers={this.numberOfPlayers} pnames={(pnm) => {this.pnames = pnm; console.log(this.pnames);}} gameId={this.state.gameId}/>
-    // }
     
     if(this.state.options === "join") {
       jg = <JoinGameOptions complete={() => this.setState({options: "game_joined", ptype: "player"})} playerInfo={(p_name, game_Id) => {this.handleJoinGame(p_name, game_Id)}} error={""}/>
@@ -241,9 +249,7 @@ class App extends Component {
 
     return (
       <div>
-        <InitialOptions newGame={() => this.handleNewGame()} joinGame={() => this.setState({options: "join"})}/>
-        {/* {ng}
-        {pnames} */}
+        <InitialOptions ref={this.initialOptions} newGame={() => this.handleNewGame()} joinGame={() => this.setState({options: "join"})}/>
         {jg}
         <div className="main">
           <div className="nav-bar">
