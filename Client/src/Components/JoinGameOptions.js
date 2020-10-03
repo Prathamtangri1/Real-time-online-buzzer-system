@@ -105,7 +105,7 @@ export default function JoinGameOptions(props) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleSubmit} color="primary">
+          <Button onClick={handleSubmit} color="primary" variant="contained">
             Submit
           </Button>
         </DialogActions>
