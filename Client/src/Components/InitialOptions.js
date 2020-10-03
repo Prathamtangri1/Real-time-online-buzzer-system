@@ -1,55 +1,88 @@
-import React from 'react';
+import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import Slide from '@material-ui/core/Slide';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
 
 
-const useStyles = makeStyles(theme => ({
+const useStyles = theme => ({
   margin: {
     margin: theme.spacing(1),
   }
-}));
+});
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function InitialOptions(props) {
-  const classes = useStyles();
+class InitialOptions extends Component {
+  constructor(props) {
+    super(props);
 
-  const [open, setOpen] = React.useState(true);
+    this.state = {
+      open: true,
+      oldGameRemoved: false
+    }
 
-  function handleClose() {
-    setOpen(false);
+    this.handleClose = this.handleClose.bind(this);
+    this.newGame = this.newGame.bind(this);
+    this.joinGame = this.joinGame.bind(this);
+    this.startAgain = this.startAgain.bind(this);
   }
 
-  function newGame() {
-    props.newGame();
-    handleClose();
+  handleClose() {
+    this.setState({open: false, oldGameRemoved: false});
   }
 
-  function joinGame() {
-    props.joinGame();
-    handleClose();
+  newGame() {
+    this.props.newGame();
+    this.handleClose();
   }
 
+  joinGame() {
+    this.props.joinGame();
+    this.handleClose();
+  }
 
-  return (
-    <div>
-      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" TransitionComponent={Transition}>
-        <DialogTitle id="form-dialog-title">Online Buzzer <span role="img" aria-label="joystick emoji">️🕹️</span></DialogTitle>
-        <DialogActions>
-          <Button variant="contained" size="large" onClick={newGame} color="primary" className={classes.margin}>
-            New Game
-          </Button>
-          <Button variant="contained" size="large" onClick={joinGame} color="primary" className={classes.margin}>
-            Join Game
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
-  );
+  startAgain() {
+    this.setState({open: true, oldGameRemoved: true});
+  }
+
+  render() {
+    const { classes } = this.props;
+    var displayInBox;
+
+    if(this.state.oldGameRemoved === true) {
+      displayInBox = <DialogContent>
+                            <DialogContentText>
+                              You were removed from the previous game. Reload this page
+                            </DialogContentText>
+                          </DialogContent>
+    }
+    else {
+      displayInBox = <DialogActions>
+                      <Button variant="contained" size="large" onClick={this.newGame} color="primary" className={classes.margin}>
+                        New Game
+                      </Button>
+                      <Button variant="contained" size="large" onClick={this.joinGame} color="primary" className={classes.margin}>
+                        Join Game
+                      </Button>
+                    </DialogActions>
+
+    }
+    return (
+      <div>
+        <Dialog open={this.state.open} onClose={this.handleClose} aria-labelledby="form-dialog-title" TransitionComponent={Transition}>
+          <DialogTitle id="form-dialog-title">Online Buzzer<span role="img" aria-label="joystick emoji">️🕹️</span></DialogTitle>
+          {displayInBox}
+        </Dialog>
+      </div>
+    );
+  }
 }
+
+export default withStyles(useStyles)(InitialOptions);
