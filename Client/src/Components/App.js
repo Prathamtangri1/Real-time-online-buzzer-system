@@ -136,6 +136,7 @@ class App extends Component {
     }
     else if (order === "timer_stop" && this.state.buzzed.length === 0) {
       this.times.current.handleStopClick();
+      
     }
     else if (order === "timer_reset"){
       this.times.current.handleResetClick();
